@@ -1,0 +1,30 @@
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build directories
+dist/
+build/
+coverage/
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project specific
+temp_gen/
+mobile_native_backup/
