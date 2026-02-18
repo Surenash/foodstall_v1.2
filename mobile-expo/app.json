@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Food Stall Discovery",
-    "slug": "mobile",
+    "slug": "foodstall",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
