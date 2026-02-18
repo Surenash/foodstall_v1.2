@@ -9,19 +9,19 @@ This MVP enables users to discover nearby food stalls with real-time "Open/Close
 ### Key Features
 
 **User App:**
-- 🗺️ Geo-discovery with map and list views
-- 🔍 Search by cuisine, dietary tags (Jain, Halal, Veg)
-- 🏥 Hygiene transparency with structured reviews
-- ⭐ Real-time "Open Now" status indicators
-- 🧭 Navigation to stall locations
+-  Geo-discovery with map and list views
+-  Search by cuisine, dietary tags (Jain, Halal, Veg)
+-  Hygiene transparency with structured reviews
+-  Real-time "Open Now" status indicators
+-  Navigation to stall locations
 
 **Owner App:**
-- 🔘 One-tap Open/Closed toggle
-- 📍 Automatic GPS location updates
-- 📸 Hygiene photo uploads (FSSAI certificates)
-- 📝 Simple menu management
+-  One-tap Open/Closed toggle
+-  Automatic GPS location updates
+-  Hygiene photo uploads (FSSAI certificates)
+-  Simple menu management
 
-## 🏗️ Architecture
+##  Architecture
 
 ### Tech Stack
 
@@ -60,7 +60,7 @@ food_stall/
         └── theme.js            # Design system
 ```
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -155,7 +155,7 @@ cd ios && pod install && cd ..
 npm run ios
 ```
 
-## 🔌 API Endpoints
+##  API Endpoints
 
 ### User APIs
 
@@ -228,7 +228,7 @@ Request OTP for phone number.
 #### POST /api/v1/auth/verify-otp
 Verify OTP and get JWT token.
 
-## 📊 Database Schema
+##  Database Schema
 
 ### Key Tables
 
@@ -252,7 +252,7 @@ WHERE ST_DWithin(location, ST_GeogFromText('POINT(long lat)'), 1000)
 ORDER BY distance;
 ```
 
-## 🎨 Design System
+##  Design System
 
 Following the **Design Document** specifications:
 
@@ -262,7 +262,7 @@ Following the **Design Document** specifications:
 - **Typography:** Inter or Roboto (Google Fonts)
 - **High Contrast:** Optimized for outdoor visibility
 
-## 🧪 Testing
+##  Testing
 
 ### Test Database Setup
 
@@ -291,17 +291,17 @@ curl -X POST http://localhost:3000/api/v1/owner/status \
   }'
 ```
 
-## 🔒 Security Considerations
+##  Security Considerations
 
-- ✅ Helmet.js for security headers
-- ✅ Rate limiting on API endpoints
-- ✅ Input validation and sanitization
-- ✅ CORS configuration
-- ⚠️ **TODO:** Implement actual SMS OTP service (Twilio/AWS SNS)
-- ⚠️ **TODO:** Set up image moderation for hygiene photos
-- ⚠️ **TODO:** Configure SSL/TLS for production
+-  Helmet.js for security headers
+-  Rate limiting on API endpoints
+-  Input validation and sanitization
+-  CORS configuration
+-  **TODO:** Implement actual SMS OTP service (Twilio/AWS SNS)
+-  **TODO:** Set up image moderation for hygiene photos
+-  **TODO:** Configure SSL/TLS for production
 
-## 📱 Mobile App Features
+##  Mobile App Features
 
 ### StallCard Component
 - Distance calculation
@@ -321,7 +321,7 @@ curl -X POST http://localhost:3000/api/v1/owner/status \
 - Optional comment field
 - Structured review submission
 
-## 🌐 Real-Time Updates
+##  Real-Time Updates
 
 Socket.io events:
 
@@ -336,7 +336,7 @@ socket.on('stall_status_update', (data) => {
 });
 ```
 
-## 📝 Next Steps
+##  Next Steps
 
 ### For Production Deployment
 
@@ -360,11 +360,11 @@ socket.on('stall_status_update', (data) => {
    - Integration tests for API endpoints
    - E2E tests for user flows
 
-## 📄 License
+##  License
 
 MIT
 
-## 👥 Authors
+##  Authors
 
 Built for the Indian street food market with a focus on hygiene transparency and vendor empowerment.
 
