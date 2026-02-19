@@ -49,7 +49,7 @@ const StallDetail = ({ route, navigation }) => {
                 menu_text: 'Masala Dosa - ₹60\nIdli Sambar (4 pcs) - ₹40\nFilter Coffee - ₹20\nMedu Vada - ₹30\nUttapam - ₹50',
                 price_range: '₹20 - ₹80',
                 hygiene_badges: { fssai_verified: true },
-                image: require('../assets/surenas_stall.png'),
+                image: require('../assets/surenas_stall (1).png'),
             },
             '2': {
                 id: '2',
@@ -65,7 +65,7 @@ const StallDetail = ({ route, navigation }) => {
                 dietary_tags: ['Vegetarian', 'Jain'],
                 menu_text: 'Pani Puri (6 pcs) - ₹30\nBhel Puri - ₹40\nSev Puri - ₹45\nDahi Puri - ₹50',
                 price_range: '₹30 - ₹60',
-                image: require('../assets/rajus_chaat.png'),
+                image: require('../assets/rajus_chaat (1).png'),
             },
             '3': {
                 id: '3',
@@ -81,7 +81,7 @@ const StallDetail = ({ route, navigation }) => {
                 dietary_tags: ['Halal', 'Non-Veg'],
                 menu_text: 'Chicken Biryani - ₹120\nMutton Biryani - ₹180\nHaleem - ₹100',
                 price_range: '₹100 - ₹200',
-                image: require('../assets/biryani_express.png'),
+                image: require('../assets/biryani_express(1).png'),
             },
         };
 
