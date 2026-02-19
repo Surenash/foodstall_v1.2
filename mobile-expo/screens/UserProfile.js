@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import theme from '../styles/theme';
+// import theme from '../styles/theme'; // Removed
+import { useTheme } from '../context/ThemeContext'; // Import Context
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getTranslationSync } from '../services/translations';
 
@@ -20,6 +21,7 @@ import { getTranslationSync } from '../services/translations';
  * Customer profile management with preferences
  */
 const UserProfile = ({ navigation }) => {
+    const { theme } = useTheme(); // Use Context
     const [isEditing, setIsEditing] = useState(false);
     const [t, setT] = useState({});
 
@@ -100,18 +102,18 @@ const UserProfile = ({ navigation }) => {
     };
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
             {/* Profile Header */}
-            <View style={styles.profileHeader}>
+            <View style={[styles.profileHeader, { backgroundColor: theme.colors.primary }]}>
                 <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
                     {profileImage ? (
-                        <Image source={{ uri: profileImage }} style={styles.avatar} />
+                        <Image source={{ uri: profileImage }} style={[styles.avatar, { borderColor: 'white' }]} />
                     ) : (
-                        <View style={styles.avatarPlaceholder}>
+                        <View style={[styles.avatarPlaceholder, { backgroundColor: theme.colors.surface, borderColor: 'white' }]}>
                             <Icon name="person" size={50} color={theme.colors.textSecondary} />
                         </View>
                     )}
-                    <View style={styles.editAvatarBtn}>
+                    <View style={[styles.editAvatarBtn, { backgroundColor: theme.colors.secondary }]}>
                         <Icon name="camera-alt" size={16} color="white" />
                     </View>
                 </TouchableOpacity>
@@ -121,21 +123,25 @@ const UserProfile = ({ navigation }) => {
 
             {/* Edit Toggle */}
             <TouchableOpacity
-                style={styles.editToggle}
+                style={[styles.editToggle, { backgroundColor: theme.colors.surface }]}
                 onPress={() => isEditing ? handleSave() : setIsEditing(true)}
             >
                 <Icon name={isEditing ? 'check' : 'edit'} size={20} color={theme.colors.primary} />
-                <Text style={styles.editToggleText}>{isEditing ? t.saveChanges : t.editProfile}</Text>
+                <Text style={[styles.editToggleText, { color: theme.colors.primary }]}>{isEditing ? t.saveChanges : t.editProfile}</Text>
             </TouchableOpacity>
 
             {/* Personal Info */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>{t.personalInfo || 'Personal Information'}</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>{t.personalInfo || 'Personal Information'}</Text>
 
                 <View style={styles.field}>
-                    <Text style={styles.fieldLabel}>{t.fullName || 'Full Name'}</Text>
+                    <Text style={[styles.fieldLabel, { color: theme.colors.textSecondary }]}>{t.fullName || 'Full Name'}</Text>
                     <TextInput
-                        style={[styles.input, !isEditing && styles.inputDisabled]}
+                        style={[
+                            styles.input,
+                            { backgroundColor: theme.colors.surface, color: theme.colors.textPrimary, borderColor: theme.colors.border },
+                            !isEditing && { backgroundColor: theme.colors.background, color: theme.colors.textSecondary }
+                        ]}
                         value={name}
                         onChangeText={setName}
                         editable={isEditing}
@@ -143,9 +149,13 @@ const UserProfile = ({ navigation }) => {
                 </View>
 
                 <View style={styles.field}>
-                    <Text style={styles.fieldLabel}>{t.email || 'Email'}</Text>
+                    <Text style={[styles.fieldLabel, { color: theme.colors.textSecondary }]}>{t.email || 'Email'}</Text>
                     <TextInput
-                        style={[styles.input, !isEditing && styles.inputDisabled]}
+                        style={[
+                            styles.input,
+                            { backgroundColor: theme.colors.surface, color: theme.colors.textPrimary, borderColor: theme.colors.border },
+                            !isEditing && { backgroundColor: theme.colors.background, color: theme.colors.textSecondary }
+                        ]}
                         value={email}
                         onChangeText={setEmail}
                         editable={isEditing}
@@ -154,9 +164,13 @@ const UserProfile = ({ navigation }) => {
                 </View>
 
                 <View style={styles.field}>
-                    <Text style={styles.fieldLabel}>{t.phone || 'Phone'}</Text>
+                    <Text style={[styles.fieldLabel, { color: theme.colors.textSecondary }]}>{t.phone || 'Phone'}</Text>
                     <TextInput
-                        style={[styles.input, !isEditing && styles.inputDisabled]}
+                        style={[
+                            styles.input,
+                            { backgroundColor: theme.colors.surface, color: theme.colors.textPrimary, borderColor: theme.colors.border },
+                            !isEditing && { backgroundColor: theme.colors.background, color: theme.colors.textSecondary }
+                        ]}
                         value={phone}
                         onChangeText={setPhone}
                         editable={isEditing}
@@ -167,16 +181,24 @@ const UserProfile = ({ navigation }) => {
 
             {/* Dietary Preferences */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>{t.dietaryPrefs || 'Dietary Preferences'}</Text>
-                <Text style={styles.sectionSubtitle}>We'll highlight stalls matching your diet</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>{t.dietaryPrefs || 'Dietary Preferences'}</Text>
+                <Text style={[styles.sectionSubtitle, { color: theme.colors.textSecondary }]}>We'll highlight stalls matching your diet</Text>
                 <View style={styles.tagsContainer}>
                     {dietaryOptions.map((diet) => (
                         <TouchableOpacity
                             key={diet}
-                            style={[styles.tag, dietaryPrefs.includes(diet) && styles.tagActive]}
+                            style={[
+                                styles.tag,
+                                { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+                                dietaryPrefs.includes(diet) && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary }
+                            ]}
                             onPress={() => togglePreference(diet, dietaryPrefs, setDietaryPrefs)}
                         >
-                            <Text style={[styles.tagText, dietaryPrefs.includes(diet) && styles.tagTextActive]}>
+                            <Text style={[
+                                styles.tagText,
+                                { color: theme.colors.textSecondary },
+                                dietaryPrefs.includes(diet) && { color: theme.colors.textLight }
+                            ]}>
                                 {diet}
                             </Text>
                         </TouchableOpacity>
@@ -186,16 +208,24 @@ const UserProfile = ({ navigation }) => {
 
             {/* Favorite Cuisines */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>{t.favCuisines || 'Favorite Cuisines'}</Text>
-                <Text style={styles.sectionSubtitle}>Get notified about new stalls in these cuisines</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>{t.favCuisines || 'Favorite Cuisines'}</Text>
+                <Text style={[styles.sectionSubtitle, { color: theme.colors.textSecondary }]}>Get notified about new stalls in these cuisines</Text>
                 <View style={styles.tagsContainer}>
                     {cuisineOptions.map((cuisine) => (
                         <TouchableOpacity
                             key={cuisine}
-                            style={[styles.tag, favCuisines.includes(cuisine) && styles.tagActive]}
+                            style={[
+                                styles.tag,
+                                { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+                                favCuisines.includes(cuisine) && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary }
+                            ]}
                             onPress={() => togglePreference(cuisine, favCuisines, setFavCuisines)}
                         >
-                            <Text style={[styles.tagText, favCuisines.includes(cuisine) && styles.tagTextActive]}>
+                            <Text style={[
+                                styles.tagText,
+                                { color: theme.colors.textSecondary },
+                                favCuisines.includes(cuisine) && { color: theme.colors.textLight }
+                            ]}>
                                 {cuisine}
                             </Text>
                         </TouchableOpacity>
@@ -205,37 +235,52 @@ const UserProfile = ({ navigation }) => {
 
             {/* Quick Links */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>{t.myActivity || 'My Activity'}</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>{t.myActivity || 'My Activity'}</Text>
 
-                <TouchableOpacity style={styles.linkRow} onPress={() => navigation.navigate('Favorites')}>
+                <TouchableOpacity
+                    style={[styles.linkRow, { backgroundColor: theme.colors.surface }]}
+                    onPress={() => navigation.navigate('Favorites')}
+                >
                     <Icon name="favorite" size={24} color={theme.colors.error} />
-                    <Text style={styles.linkText}>{t.favStalls || 'Favorite Stalls'}</Text>
+                    <Text style={[styles.linkText, { color: theme.colors.textPrimary }]}>{t.favStalls || 'Favorite Stalls'}</Text>
                     <Icon name="chevron-right" size={24} color={theme.colors.textSecondary} />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.linkRow} onPress={() => navigation.navigate('MyReviews')}>
+                <TouchableOpacity
+                    style={[styles.linkRow, { backgroundColor: theme.colors.surface }]}
+                    onPress={() => navigation.navigate('MyReviews')}
+                >
                     <Icon name="rate-review" size={24} color={theme.colors.secondary} />
-                    <Text style={styles.linkText}>{t.myReviews || 'My Reviews'}</Text>
+                    <Text style={[styles.linkText, { color: theme.colors.textPrimary }]}>{t.myReviews || 'My Reviews'}</Text>
                     <Icon name="chevron-right" size={24} color={theme.colors.textSecondary} />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.linkRow} onPress={() => navigation.navigate('Notifications')}>
+                <TouchableOpacity
+                    style={[styles.linkRow, { backgroundColor: theme.colors.surface }]}
+                    onPress={() => navigation.navigate('Notifications')}
+                >
                     <Icon name="notifications" size={24} color={theme.colors.warning || '#FFA000'} />
-                    <Text style={styles.linkText}>{t.notifications || 'Notifications'}</Text>
+                    <Text style={[styles.linkText, { color: theme.colors.textPrimary }]}>{t.notifications || 'Notifications'}</Text>
                     <Icon name="chevron-right" size={24} color={theme.colors.textSecondary} />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.linkRow} onPress={() => navigation.navigate('Settings')}>
+                <TouchableOpacity
+                    style={[styles.linkRow, { backgroundColor: theme.colors.surface }]}
+                    onPress={() => navigation.navigate('Settings')}
+                >
                     <Icon name="settings" size={24} color={theme.colors.primary} />
-                    <Text style={styles.linkText}>{t.settings || 'Settings'}</Text>
+                    <Text style={[styles.linkText, { color: theme.colors.textPrimary }]}>{t.settings || 'Settings'}</Text>
                     <Icon name="chevron-right" size={24} color={theme.colors.textSecondary} />
                 </TouchableOpacity>
             </View>
 
             {/* Logout */}
-            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+            <TouchableOpacity
+                style={[styles.logoutBtn, { borderColor: theme.colors.error }]}
+                onPress={handleLogout}
+            >
                 <Icon name="logout" size={20} color={theme.colors.error} />
-                <Text style={styles.logoutText}>{t.logout || 'Logout'}</Text>
+                <Text style={[styles.logoutText, { color: theme.colors.error }]}>{t.logout || 'Logout'}</Text>
             </TouchableOpacity>
 
             <View style={{ height: 100 }} />
@@ -246,12 +291,12 @@ const UserProfile = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background,
+        // backgroundColor: theme.colors.background, // Dynamic
     },
     profileHeader: {
         alignItems: 'center',
-        paddingVertical: theme.spacing.xl,
-        backgroundColor: theme.colors.primary,
+        paddingVertical: 32, // theme.spacing.xl
+        // backgroundColor: theme.colors.primary, // Dynamic
     },
     avatarContainer: {
         position: 'relative',
@@ -261,23 +306,23 @@ const styles = StyleSheet.create({
         height: 100,
         borderRadius: 50,
         borderWidth: 3,
-        borderColor: 'white',
+        // borderColor: 'white', // In component
     },
     avatarPlaceholder: {
         width: 100,
         height: 100,
         borderRadius: 50,
-        backgroundColor: theme.colors.surface,
+        // backgroundColor: theme.colors.surface, // Dynamic
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 3,
-        borderColor: 'white',
+        // borderColor: 'white', // In component
     },
     editAvatarBtn: {
         position: 'absolute',
         bottom: 0,
         right: 0,
-        backgroundColor: theme.colors.secondary,
+        // backgroundColor: theme.colors.secondary, // Dynamic
         borderRadius: 15,
         width: 30,
         height: 30,
@@ -285,13 +330,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     userName: {
-        fontSize: theme.typography.fontSize['2xl'],
+        fontSize: 24, // theme.typography.fontSize['2xl']
         fontWeight: 'bold',
         color: 'white',
-        marginTop: theme.spacing.md,
+        marginTop: 16, // theme.spacing.md
     },
     userEmail: {
-        fontSize: theme.typography.fontSize.sm,
+        fontSize: 14, // theme.typography.fontSize.sm
         color: 'rgba(255,255,255,0.8)',
         marginTop: 4,
     },
@@ -299,110 +344,112 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: theme.spacing.md,
-        backgroundColor: theme.colors.surface,
-        marginHorizontal: theme.spacing.md,
+        padding: 16, // theme.spacing.md
+        // backgroundColor: theme.colors.surface, // Dynamic
+        marginHorizontal: 16, // theme.spacing.md
         marginTop: -20,
-        borderRadius: theme.borderRadius.md,
-        ...theme.shadows.md,
-        gap: theme.spacing.sm,
+        borderRadius: 8, // theme.borderRadius.md
+        // ...theme.shadows.md,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+        gap: 8, // theme.spacing.sm
     },
     editToggleText: {
-        fontSize: theme.typography.fontSize.base,
-        color: theme.colors.primary,
+        fontSize: 16, // theme.typography.fontSize.base
+        // color: theme.colors.primary, // Dynamic
         fontWeight: '600',
     },
     section: {
-        padding: theme.spacing.md,
-        marginTop: theme.spacing.md,
+        padding: 16, // theme.spacing.md
+        marginTop: 16, // theme.spacing.md
     },
     sectionTitle: {
-        fontSize: theme.typography.fontSize.lg,
+        fontSize: 18, // theme.typography.fontSize.lg
         fontWeight: 'bold',
-        color: theme.colors.textPrimary,
+        // color: theme.colors.textPrimary, // Dynamic
         marginBottom: 4,
     },
     sectionSubtitle: {
-        fontSize: theme.typography.fontSize.sm,
-        color: theme.colors.textSecondary,
-        marginBottom: theme.spacing.md,
+        fontSize: 14, // theme.typography.fontSize.sm
+        // color: theme.colors.textSecondary, // Dynamic
+        marginBottom: 16, // theme.spacing.md
     },
     field: {
-        marginBottom: theme.spacing.md,
+        marginBottom: 16, // theme.spacing.md
     },
     fieldLabel: {
-        fontSize: theme.typography.fontSize.sm,
-        color: theme.colors.textSecondary,
+        fontSize: 14, // theme.typography.fontSize.sm
+        // color: theme.colors.textSecondary, // Dynamic
         marginBottom: 4,
     },
     input: {
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.borderRadius.md,
-        padding: theme.spacing.md,
-        fontSize: theme.typography.fontSize.base,
-        color: theme.colors.textPrimary,
+        // backgroundColor: theme.colors.surface, // Dynamic
+        borderRadius: 8, // theme.borderRadius.md
+        padding: 16, // theme.spacing.md
+        fontSize: 16, // theme.typography.fontSize.base
+        // color: theme.colors.textPrimary, // Dynamic
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        // borderColor: theme.colors.border, // Dynamic
     },
-    inputDisabled: {
-        backgroundColor: theme.colors.background,
-        color: theme.colors.textSecondary,
-    },
+    // inputDisabled handled dynamically
     tagsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: theme.spacing.sm,
+        gap: 8, // theme.spacing.sm
     },
     tag: {
-        paddingHorizontal: theme.spacing.md,
-        paddingVertical: theme.spacing.sm,
+        paddingHorizontal: 16, // theme.spacing.md
+        paddingVertical: 8, // theme.spacing.sm
         borderRadius: 20,
-        backgroundColor: theme.colors.surface,
+        // backgroundColor: theme.colors.surface, // Dynamic
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        // borderColor: theme.colors.border, // Dynamic
     },
-    tagActive: {
-        backgroundColor: theme.colors.primary,
-        borderColor: theme.colors.primary,
-    },
+    // tagActive handled dynamically
     tagText: {
-        fontSize: theme.typography.fontSize.sm,
-        color: theme.colors.textSecondary,
+        fontSize: 14, // theme.typography.fontSize.sm
+        // color: theme.colors.textSecondary, // Dynamic
     },
-    tagTextActive: {
-        color: 'white',
-        fontWeight: '600',
-    },
+    // tagTextActive handled dynamically
     linkRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: theme.colors.surface,
-        padding: theme.spacing.md,
-        borderRadius: theme.borderRadius.md,
-        marginBottom: theme.spacing.sm,
-        ...theme.shadows.sm,
+        // backgroundColor: theme.colors.surface, // Dynamic
+        padding: 16, // theme.spacing.md
+        borderRadius: 8, // theme.borderRadius.md
+        marginBottom: 8, // theme.spacing.sm
+        // ...theme.shadows.sm,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 2,
     },
     linkText: {
         flex: 1,
-        fontSize: theme.typography.fontSize.base,
-        color: theme.colors.textPrimary,
-        marginLeft: theme.spacing.md,
+        fontSize: 16, // theme.typography.fontSize.base
+        // color: theme.colors.textPrimary, // Dynamic
+        marginLeft: 16, // theme.spacing.md
     },
     logoutBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginHorizontal: theme.spacing.md,
-        marginTop: theme.spacing.lg,
-        padding: theme.spacing.md,
-        borderRadius: theme.borderRadius.md,
+        marginHorizontal: 16, // theme.spacing.md
+        marginTop: 24, // theme.spacing.lg
+        padding: 16, // theme.spacing.md
+        borderRadius: 8, // theme.borderRadius.md
         borderWidth: 1,
-        borderColor: theme.colors.error,
-        gap: theme.spacing.sm,
+        // borderColor: theme.colors.error, // Dynamic (actually keep error color logic in component or constant if easy)
+        // keeping logic in component for consistency
+        gap: 8, // theme.spacing.sm
     },
     logoutText: {
-        fontSize: theme.typography.fontSize.base,
-        color: theme.colors.error,
+        fontSize: 16, // theme.typography.fontSize.base
+        // color: theme.colors.error, // Dynamic
         fontWeight: '600',
     },
 });

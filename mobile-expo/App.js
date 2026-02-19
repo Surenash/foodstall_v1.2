@@ -1,13 +1,16 @@
-import React from 'react';
-import { Image } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useCallback } from 'react';
+import { Image, StatusBar } from 'react-native'; // Added StatusBar
+import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getTranslationSync } from './services/translations';
+import { ThemeProvider, useTheme } from './context/ThemeContext'; // Import Context
 
-import theme from './styles/theme';
+// Removing direct theme import to encourage useTheme hook
+// import theme from './styles/theme'; 
+import { lightColors } from './styles/theme'; // Fallback for outside context if needed
 
 // Screens
 // Note: Ensure these filenames match exactly what is in the directory
@@ -28,8 +31,11 @@ import MyReviews from './screens/MyReviews';
 import Settings from './screens/Settings';
 import Notifications from './screens/Notifications';
 import ReportStall from './screens/ReportStall';
+
 import About from './screens/About';
 import Help from './screens/Help';
+import PushCartRadar from './screens/PushCartRadar';
+import PushCartDetail from './screens/PushCartDetail';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -40,20 +46,25 @@ const Tab = createBottomTabNavigator();
 function UserTabs() {
   const [t, setT] = React.useState({});
 
-  React.useEffect(() => {
-    const loadTranslations = async () => {
-      const lang = await AsyncStorage.getItem('language') || 'en';
-      setT({
-        map: getTranslationSync('map', lang),
-        list: getTranslationSync('list', lang), // Note: 'list' key missing, will fallback
-        profile: getTranslationSync('profile', lang),
-        nearbyStalls: getTranslationSync('nearbyStalls', lang),
-        allStalls: getTranslationSync('allStalls', lang),
-        myProfile: getTranslationSync('myProfile', lang),
-      });
-    };
-    loadTranslations();
-  }, []);
+  const { theme } = useTheme(); // Use dynamic theme
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadTranslations = async () => {
+        const lang = await AsyncStorage.getItem('language') || 'en';
+        setT({
+          map: getTranslationSync('map', lang),
+          list: getTranslationSync('list', lang),
+          profile: getTranslationSync('profile', lang),
+          nearbyStalls: getTranslationSync('nearbyStalls', lang),
+          allStalls: getTranslationSync('allStalls', lang),
+          myProfile: getTranslationSync('myProfile', lang),
+          radar: getTranslationSync('radar', lang),
+        });
+      };
+      loadTranslations();
+    }, [])
+  );
 
   return (
     <Tab.Navigator
@@ -67,6 +78,8 @@ function UserTabs() {
             iconName = 'list';
           } else if (route.name === 'Profile') {
             iconName = 'person';
+          } else if (route.name === 'Radar') {
+            iconName = 'track-changes';
           }
 
           return <MaterialIcons name={iconName} size={size} color={color} />;
@@ -74,10 +87,10 @@ function UserTabs() {
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: theme.colors.background,
+          backgroundColor: theme.colors.background, // Dynamic background
           borderTopColor: theme.colors.border,
-          height: 90, // Increased height for Android nav bar clearance
-          paddingBottom: 30, // Extra padding to stay above Android nav bar
+          height: 90,
+          paddingBottom: 30,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
@@ -87,7 +100,7 @@ function UserTabs() {
         headerStyle: {
           backgroundColor: theme.colors.primary,
         },
-        headerTintColor: theme.colors.textLight,
+        headerTintColor: theme.colors.textLight, // Assuming textLight is white and works on primary
         headerTitleStyle: {
           fontFamily: theme.typography.fontFamily.bold,
           fontSize: theme.typography.fontSize.lg,
@@ -110,6 +123,15 @@ function UserTabs() {
         name="List"
         component={ListView}
         options={{ title: t.allStalls || 'All Stalls', tabBarLabel: t.list || 'List' }}
+      />
+      <Tab.Screen
+        name="Radar"
+        component={PushCartRadar}
+        options={{
+          title: t.radarTitle || 'Push Cart Radar',
+          tabBarLabel: t.radar || 'Radar',
+          headerShown: false // Radar screen has its own header
+        }}
       />
       <Tab.Screen
         name="Profile"
@@ -147,122 +169,132 @@ function App() {
   }, []);
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="LanguageSelection"
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: theme.colors.primary,
-          },
-          headerTintColor: theme.colors.textLight,
-          headerTitleStyle: {
-            fontFamily: theme.typography.fontFamily.bold,
-            fontSize: theme.typography.fontSize.lg,
-          },
-          headerRight: () => (
-            <Image
-              source={require('./assets/logo_icon.png')}
-              style={{ width: 30, height: 30, marginRight: 15 }}
-              resizeMode="contain"
-            />
-          ),
-          cardStyle: {
-            backgroundColor: theme.colors.background,
-          },
-        }}
-      >
-        {/* Onboarding */}
-        <Stack.Screen
-          name="LanguageSelection"
-          component={LanguageSelection}
-          options={{ headerShown: false }}
-        />
+    <ThemeProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="LanguageSelection"
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: lightColors.primary, // Initial static fallback, screens will override
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontFamily: 'System',
+              fontWeight: 'bold',
+              fontSize: 18,
+            },
+            headerRight: () => (
+              <Image
+                source={require('./assets/logo_icon.png')}
+                style={{ width: 30, height: 30, marginRight: 15 }}
+                resizeMode="contain"
+              />
+            ),
+            // Default card style removed here, handled by individual screens using context 
+            // or by NavigationContainer's theme prop if we were using that fully.
+            // For now, let's let screens handle their background color via context.
+          }}
+        >
+          {/* Onboarding */}
+          <Stack.Screen
+            name="LanguageSelection"
+            component={LanguageSelection}
+            options={{ headerShown: false }}
+          />
 
-        {/* Authentication */}
-        <Stack.Screen
-          name="LoginScreen"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="SignUpScreen"
-          component={SignUpScreen}
-          options={{ headerShown: false }}
-        />
+          {/* Authentication */}
+          <Stack.Screen
+            name="LoginScreen"
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SignUpScreen"
+            component={SignUpScreen}
+            options={{ headerShown: false }}
+          />
 
-        {/* Main User App */}
-        <Stack.Screen
-          name="Main"
-          component={UserTabs}
-          options={{ headerShown: false }}
-        />
+          {/* Main User App */}
+          <Stack.Screen
+            name="Main"
+            component={UserTabs}
+            options={{ headerShown: false }}
+          />
 
-        {/* Stall Detail */}
-        <Stack.Screen
-          name="StallDetail"
-          component={StallDetail}
-          options={{ title: t.stallDetails || 'Stall Details' }}
-        />
+          {/* Stall Detail */}
+          <Stack.Screen
+            name="StallDetail"
+            component={StallDetail}
+            options={{ title: t.stallDetails || 'Stall Details' }}
+          />
 
-        {/* Review Form */}
-        <Stack.Screen
-          name="ReviewForm"
-          component={ReviewForm}
-          options={{ title: t.writeReview || 'Write Review' }}
-        />
+          {/* Push Cart Detail (Dedicated) */}
+          <Stack.Screen
+            name="PushCartDetail"
+            component={PushCartDetail}
+            options={{ headerShown: false }}
+          />
 
-        {/* Owner Dashboard */}
-        <Stack.Screen
-          name="OwnerDashboard"
-          component={OwnerDashboard}
-          options={{ title: t.ownerDashboard || 'Owner Dashboard' }}
-        />
+          {/* Review Form */}
+          <Stack.Screen
+            name="ReviewForm"
+            component={ReviewForm}
+            options={{ title: t.writeReview || 'Write Review' }}
+          />
 
-        {/* Stall Profile Editor */}
-        <Stack.Screen
-          name="StallProfileEditor"
-          component={StallProfileEditor}
-          options={{ title: t.editStallProfile || 'Edit Stall Profile' }}
-        />
+          {/* Owner Dashboard */}
+          <Stack.Screen
+            name="OwnerDashboard"
+            component={OwnerDashboard}
+            options={{ title: t.ownerDashboard || 'Owner Dashboard' }}
+          />
 
-        {/* Customer Profile Screens */}
-        <Stack.Screen
-          name="Favorites"
-          component={Favorites}
-          options={{ title: t.myFavorites || 'My Favorites' }}
-        />
-        <Stack.Screen
-          name="MyReviews"
-          component={MyReviews}
-          options={{ title: t.myReviews || 'My Reviews' }}
-        />
-        <Stack.Screen
-          name="Settings"
-          component={Settings}
-          options={{ title: t.settings || 'Settings' }}
-        />
-        <Stack.Screen
-          name="Notifications"
-          component={Notifications}
-          options={{ title: t.notifications || 'Notifications' }}
-        />
-        <Stack.Screen
-          name="ReportStall"
-          component={ReportStall}
-          options={{ title: t.reportIssue || 'Report Issue' }}
-        />
-        <Stack.Screen
-          name="About"
-          component={About}
-          options={{ title: t.about || 'About' }}
-        />
-        <Stack.Screen
-          name="Help"
-          component={Help}
-          options={{ title: t.helpSupport || 'Help & Support' }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+          {/* Stall Profile Editor */}
+          <Stack.Screen
+            name="StallProfileEditor"
+            component={StallProfileEditor}
+            options={{ title: t.editStallProfile || 'Edit Stall Profile' }}
+          />
+
+          {/* Customer Profile Screens */}
+          <Stack.Screen
+            name="Favorites"
+            component={Favorites}
+            options={{ title: t.myFavorites || 'My Favorites' }}
+          />
+          <Stack.Screen
+            name="MyReviews"
+            component={MyReviews}
+            options={{ title: t.myReviews || 'My Reviews' }}
+          />
+          <Stack.Screen
+            name="Settings"
+            component={Settings}
+            options={{ title: t.settings || 'Settings' }}
+          />
+          <Stack.Screen
+            name="Notifications"
+            component={Notifications}
+            options={{ title: t.notifications || 'Notifications' }}
+          />
+          <Stack.Screen
+            name="ReportStall"
+            component={ReportStall}
+            options={{ title: t.reportIssue || 'Report Issue' }}
+          />
+          <Stack.Screen
+            name="About"
+            component={About}
+            options={{ title: t.about || 'About' }}
+          />
+          <Stack.Screen
+            name="Help"
+            component={Help}
+            options={{ title: t.helpSupport || 'Help & Support' }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
 

@@ -15,7 +15,8 @@ import { MaterialIcons as Icon } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import StallCard from '../components/StallCard';
 import { stallsAPI } from '../services/api';
-import theme from '../styles/theme';
+// import theme from '../styles/theme'; // Removed
+import { useTheme } from '../context/ThemeContext'; // Import Context
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getTranslationSync } from '../services/translations';
 
@@ -24,6 +25,7 @@ import { getTranslationSync } from '../services/translations';
  * Displays stalls in a list with search and filter capabilities
  */
 const ListView = ({ navigation }) => {
+    const { theme } = useTheme(); // Use Context
     const [stalls, setStalls] = useState([]);
     const [filteredStalls, setFilteredStalls] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -221,10 +223,10 @@ const ListView = ({ navigation }) => {
             transparent={true}
             onRequestClose={() => setShowFilters(false)}
         >
-            <View style={styles.modalOverlay}>
-                <View style={styles.modalContent}>
+            <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
+                <View style={[styles.modalContent, { backgroundColor: theme.colors.background }]}>
                     <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>Filters</Text>
+                        <Text style={[styles.modalTitle, { color: theme.colors.textPrimary }]}>Filters</Text>
                         <TouchableOpacity onPress={() => setShowFilters(false)}>
                             <Icon name="close" size={24} color={theme.colors.textPrimary} />
                         </TouchableOpacity>
@@ -232,10 +234,10 @@ const ListView = ({ navigation }) => {
 
                     {/* Open Only Toggle */}
                     <TouchableOpacity
-                        style={styles.filterOption}
+                        style={[styles.filterOption, { borderBottomColor: theme.colors.border }]}
                         onPress={() => setFilters({ ...filters, openOnly: !filters.openOnly })}
                     >
-                        <Text style={styles.filterLabel}>Show Open Stalls Only</Text>
+                        <Text style={[styles.filterLabel, { color: theme.colors.textPrimary }]}>Show Open Stalls Only</Text>
                         <Icon
                             name={filters.openOnly ? 'check-box' : 'check-box-outline-blank'}
                             size={24}
@@ -244,21 +246,23 @@ const ListView = ({ navigation }) => {
                     </TouchableOpacity>
 
                     {/* Dietary Tags */}
-                    <Text style={styles.filterSectionTitle}>Dietary Preferences</Text>
+                    <Text style={[styles.filterSectionTitle, { color: theme.colors.textPrimary }]}>Dietary Preferences</Text>
                     <View style={styles.tagsContainer}>
                         {dietaryOptions.map((tag) => (
                             <TouchableOpacity
                                 key={tag}
                                 style={[
                                     styles.tagChip,
-                                    filters.dietaryTags.includes(tag) && styles.tagChipActive,
+                                    { borderColor: theme.colors.border, backgroundColor: theme.colors.surface },
+                                    filters.dietaryTags.includes(tag) && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
                                 ]}
                                 onPress={() => toggleDietaryTag(tag)}
                             >
                                 <Text
                                     style={[
                                         styles.tagChipText,
-                                        filters.dietaryTags.includes(tag) && styles.tagChipTextActive,
+                                        { color: theme.colors.textPrimary },
+                                        filters.dietaryTags.includes(tag) && { color: theme.colors.textLight },
                                     ]}
                                 >
                                     {tag}
@@ -268,7 +272,7 @@ const ListView = ({ navigation }) => {
                     </View>
 
                     {/* Max Distance Slider */}
-                    <Text style={styles.filterSectionTitle}>
+                    <Text style={[styles.filterSectionTitle, { color: theme.colors.textPrimary }]}>
                         Max Distance: {filters.maxDistance} km
                     </Text>
                     <View style={styles.distanceButtons}>
@@ -277,14 +281,16 @@ const ListView = ({ navigation }) => {
                                 key={distance}
                                 style={[
                                     styles.distanceButton,
-                                    filters.maxDistance === distance && styles.distanceButtonActive,
+                                    { borderColor: theme.colors.border },
+                                    filters.maxDistance === distance && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
                                 ]}
                                 onPress={() => setFilters({ ...filters, maxDistance: distance })}
                             >
                                 <Text
                                     style={[
                                         styles.distanceButtonText,
-                                        filters.maxDistance === distance && styles.distanceButtonTextActive,
+                                        { color: theme.colors.textPrimary },
+                                        filters.maxDistance === distance && { color: theme.colors.textLight },
                                     ]}
                                 >
                                     {distance} km
@@ -296,19 +302,19 @@ const ListView = ({ navigation }) => {
                     {/* Actions */}
                     <View style={styles.modalActions}>
                         <TouchableOpacity
-                            style={styles.clearButton}
+                            style={[styles.clearButton, { borderColor: theme.colors.border }]}
                             onPress={clearFilters}
                         >
-                            <Text style={styles.clearButtonText}>Clear All</Text>
+                            <Text style={[styles.clearButtonText, { color: theme.colors.textPrimary }]}>Clear All</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={styles.applyButton}
+                            style={[styles.applyButton, { backgroundColor: theme.colors.primary }]}
                             onPress={() => {
                                 fetchStalls();
                                 setShowFilters(false);
                             }}
                         >
-                            <Text style={styles.applyButtonText}>Apply Filters</Text>
+                            <Text style={[styles.applyButtonText, { color: theme.colors.textLight }]}>Apply Filters</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -318,21 +324,22 @@ const ListView = ({ navigation }) => {
 
     if (loading) {
         return (
-            <View style={styles.loadingContainer}>
+            <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
                 <ActivityIndicator size="large" color={theme.colors.primary} />
-                <Text style={styles.loadingText}>Finding stalls near you...</Text>
+                <Text style={[styles.loadingText, { color: theme.colors.textSecondary }]}>Finding stalls near you...</Text>
             </View>
         );
     }
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             {/* Search Bar */}
-            <View style={styles.searchContainer}>
+            <View style={[styles.searchContainer, { backgroundColor: theme.colors.surface }]}>
                 <Icon name="search" size={24} color={theme.colors.textSecondary} />
                 <TextInput
-                    style={styles.searchInput}
+                    style={[styles.searchInput, { color: theme.colors.textPrimary }]}
                     placeholder={t.searchStalls || "Search by name or cuisine..."}
+                    placeholderTextColor={theme.colors.textSecondary}
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                 />
@@ -342,7 +349,7 @@ const ListView = ({ navigation }) => {
                 >
                     <Icon name="filter-list" size={24} color={theme.colors.primary} />
                     {(filters.openOnly || filters.dietaryTags.length > 0) && (
-                        <View style={styles.filterBadge} />
+                        <View style={[styles.filterBadge, { backgroundColor: theme.colors.error }]} />
                     )}
                 </TouchableOpacity>
             </View>
@@ -351,13 +358,13 @@ const ListView = ({ navigation }) => {
             {(filters.openOnly || filters.dietaryTags.length > 0) && (
                 <View style={styles.activeFilters}>
                     {filters.openOnly && (
-                        <View style={styles.activeFilterChip}>
-                            <Text style={styles.activeFilterText}>Open Now</Text>
+                        <View style={[styles.activeFilterChip, { backgroundColor: theme.colors.primary }]}>
+                            <Text style={[styles.activeFilterText, { color: theme.colors.textLight }]}>Open Now</Text>
                         </View>
                     )}
                     {filters.dietaryTags.map((tag) => (
-                        <View key={tag} style={styles.activeFilterChip}>
-                            <Text style={styles.activeFilterText}>{tag}</Text>
+                        <View key={tag} style={[styles.activeFilterChip, { backgroundColor: theme.colors.primary }]}>
+                            <Text style={[styles.activeFilterText, { color: theme.colors.textLight }]}>{tag}</Text>
                         </View>
                     ))}
                 </View>
@@ -365,7 +372,7 @@ const ListView = ({ navigation }) => {
 
             {/* Results Count */}
             <View style={styles.resultsHeader}>
-                <Text style={styles.resultsText}>
+                <Text style={[styles.resultsText, { color: theme.colors.textPrimary }]}>
                     {filteredStalls.length} stall{filteredStalls.length !== 1 ? 's' : ''} found
                 </Text>
                 {filteredStalls.length > 0 && (
@@ -379,8 +386,8 @@ const ListView = ({ navigation }) => {
             {filteredStalls.length === 0 ? (
                 <View style={styles.emptyContainer}>
                     <Icon name="store" size={64} color={theme.colors.border} />
-                    <Text style={styles.emptyText}>No stalls found</Text>
-                    <Text style={styles.emptySubtext}>
+                    <Text style={[styles.emptyText, { color: theme.colors.textPrimary }]}>No stalls found</Text>
+                    <Text style={[styles.emptySubtext, { color: theme.colors.textSecondary }]}>
                         Try adjusting your filters or search query
                     </Text>
                 </View>
@@ -403,7 +410,7 @@ const ListView = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background,
+        // backgroundColor: theme.colors.background, // Dynamic
     },
     loadingContainer: {
         flex: 1,
@@ -411,28 +418,33 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     loadingText: {
-        marginTop: theme.spacing.md,
-        fontSize: theme.typography.fontSize.base,
-        color: theme.colors.textSecondary,
+        marginTop: 16, // theme.spacing.md
+        fontSize: 16, // theme.typography.fontSize.base
+        // color: theme.colors.textSecondary, // Dynamic
     },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: theme.colors.surface,
-        margin: theme.spacing.md,
-        paddingHorizontal: theme.spacing.md,
-        borderRadius: theme.borderRadius.md,
-        ...theme.shadows.sm,
+        // backgroundColor: theme.colors.surface, // Dynamic
+        margin: 16, // theme.spacing.md
+        paddingHorizontal: 16, // theme.spacing.md
+        borderRadius: 8, // theme.borderRadius.md
+        // ...theme.shadows.sm, // Manual shadow
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 2,
     },
     searchInput: {
         flex: 1,
-        paddingVertical: theme.spacing.md,
-        paddingHorizontal: theme.spacing.sm,
-        fontSize: theme.typography.fontSize.base,
-        color: theme.colors.textPrimary,
+        paddingVertical: 16, // theme.spacing.md
+        paddingHorizontal: 8, // theme.spacing.sm
+        fontSize: 16, // theme.typography.fontSize.base
+        // color: theme.colors.textPrimary, // Dynamic
     },
     filterButton: {
-        padding: theme.spacing.xs,
+        padding: 4, // theme.spacing.xs
         position: 'relative',
     },
     filterBadge: {
@@ -442,38 +454,40 @@ const styles = StyleSheet.create({
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: theme.colors.error,
+        // backgroundColor: theme.colors.error, // Dynamic
     },
     activeFilters: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        paddingHorizontal: theme.spacing.md,
-        marginBottom: theme.spacing.sm,
+        paddingHorizontal: 16, // theme.spacing.md
+        marginBottom: 8, // theme.spacing.sm
     },
     activeFilterChip: {
-        backgroundColor: theme.colors.primary,
-        paddingHorizontal: theme.spacing.sm,
-        paddingVertical: theme.spacing.xs,
-        borderRadius: theme.borderRadius.sm,
-        marginRight: theme.spacing.xs,
-        marginBottom: theme.spacing.xs,
+        // backgroundColor: theme.colors.primary, // Dynamic
+        paddingHorizontal: 8, // theme.spacing.sm
+        paddingVertical: 4, // theme.spacing.xs
+        borderRadius: 4, // theme.borderRadius.sm
+        marginRight: 4, // theme.spacing.xs
+        marginBottom: 4, // theme.spacing.xs
     },
     activeFilterText: {
-        fontSize: theme.typography.fontSize.sm,
-        fontFamily: theme.typography.fontFamily.medium,
-        color: theme.colors.textLight,
+        fontSize: 14, // theme.typography.fontSize.sm
+        fontFamily: 'System', // theme.typography.fontFamily.medium
+        // color: theme.colors.textLight, // Dynamic
+        fontWeight: '500',
     },
     resultsHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: theme.spacing.md,
-        marginBottom: theme.spacing.sm,
+        paddingHorizontal: 16, // theme.spacing.md
+        marginBottom: 8, // theme.spacing.sm
     },
     resultsText: {
-        fontSize: theme.typography.fontSize.base,
-        fontFamily: theme.typography.fontFamily.semibold,
-        color: theme.colors.textPrimary,
+        fontSize: 16, // theme.typography.fontSize.base
+        fontFamily: 'System', // theme.typography.fontFamily.semibold
+        fontWeight: '600',
+        // color: theme.colors.textPrimary, // Dynamic
     },
     listContent: {
         paddingBottom: 100, // Space for bottom navigation bar
@@ -482,142 +496,136 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: theme.spacing.xl,
+        padding: 32, // theme.spacing.xl
     },
     emptyText: {
-        fontSize: theme.typography.fontSize.lg,
-        fontFamily: theme.typography.fontFamily.semibold,
-        color: theme.colors.textPrimary,
-        marginTop: theme.spacing.md,
+        fontSize: 20, // theme.typography.fontSize.lg
+        fontFamily: 'System', // theme.typography.fontFamily.semibold
+        fontWeight: '600',
+        // color: theme.colors.textPrimary, // Dynamic
+        marginTop: 16, // theme.spacing.md
     },
     emptySubtext: {
-        fontSize: theme.typography.fontSize.sm,
-        fontFamily: theme.typography.fontFamily.regular,
-        color: theme.colors.textSecondary,
-        marginTop: theme.spacing.xs,
+        fontSize: 14, // theme.typography.fontSize.sm
+        fontFamily: 'System', // theme.typography.fontFamily.regular
+        // color: theme.colors.textSecondary, // Dynamic
+        marginTop: 4, // theme.spacing.xs
         textAlign: 'center',
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        // backgroundColor: 'rgba(0, 0, 0, 0.5)',
         justifyContent: 'flex-end',
     },
     modalContent: {
-        backgroundColor: theme.colors.background,
-        borderTopLeftRadius: theme.borderRadius.xl,
-        borderTopRightRadius: theme.borderRadius.xl,
-        padding: theme.spacing.lg,
+        // backgroundColor: theme.colors.background, // Dynamic
+        borderTopLeftRadius: 16, // theme.borderRadius.xl
+        borderTopRightRadius: 16, // theme.borderRadius.xl
+        padding: 24, // theme.spacing.lg
         maxHeight: '80%',
     },
     modalHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: theme.spacing.lg,
+        marginBottom: 24, // theme.spacing.lg
     },
     modalTitle: {
-        fontSize: theme.typography.fontSize['2xl'],
-        fontFamily: theme.typography.fontFamily.bold,
-        color: theme.colors.textPrimary,
+        fontSize: 24, // theme.typography.fontSize['2xl']
+        fontFamily: 'System', // theme.typography.fontFamily.bold
+        fontWeight: 'bold',
+        // color: theme.colors.textPrimary, // Dynamic
     },
     filterOption: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: theme.spacing.md,
+        paddingVertical: 16, // theme.spacing.md
         borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
+        // borderBottomColor: theme.colors.border, // Dynamic
     },
     filterLabel: {
-        fontSize: theme.typography.fontSize.base,
-        fontFamily: theme.typography.fontFamily.medium,
-        color: theme.colors.textPrimary,
+        fontSize: 16, // theme.typography.fontSize.base
+        fontFamily: 'System', // theme.typography.fontFamily.medium
+        fontWeight: '500',
+        // color: theme.colors.textPrimary, // Dynamic
     },
     filterSectionTitle: {
-        fontSize: theme.typography.fontSize.base,
-        fontFamily: theme.typography.fontFamily.semibold,
-        color: theme.colors.textPrimary,
-        marginTop: theme.spacing.lg,
-        marginBottom: theme.spacing.sm,
+        fontSize: 16, // theme.typography.fontSize.base
+        fontFamily: 'System', // theme.typography.fontFamily.semibold
+        fontWeight: '600',
+        // color: theme.colors.textPrimary, // Dynamic
+        marginTop: 24, // theme.spacing.lg
+        marginBottom: 8, // theme.spacing.sm
     },
     tagsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
     },
     tagChip: {
-        paddingHorizontal: theme.spacing.md,
-        paddingVertical: theme.spacing.sm,
-        borderRadius: theme.borderRadius.md,
+        paddingHorizontal: 16, // theme.spacing.md
+        paddingVertical: 8, // theme.spacing.sm
+        borderRadius: 8, // theme.borderRadius.md
         borderWidth: 1,
-        borderColor: theme.colors.border,
-        marginRight: theme.spacing.sm,
-        marginBottom: theme.spacing.sm,
-    },
-    tagChipActive: {
-        backgroundColor: theme.colors.primary,
-        borderColor: theme.colors.primary,
+        // borderColor: theme.colors.border, // Dynamic
+        marginRight: 8, // theme.spacing.sm
+        marginBottom: 8, // theme.spacing.sm
     },
     tagChipText: {
-        fontSize: theme.typography.fontSize.sm,
-        fontFamily: theme.typography.fontFamily.medium,
-        color: theme.colors.textPrimary,
-    },
-    tagChipTextActive: {
-        color: theme.colors.textLight,
+        fontSize: 14, // theme.typography.fontSize.sm
+        fontFamily: 'System', // theme.typography.fontFamily.medium
+        fontWeight: '500',
+        // color: theme.colors.textPrimary, // Dynamic
     },
     distanceButtons: {
         flexDirection: 'row',
-        gap: theme.spacing.sm,
+        gap: 8, // theme.spacing.sm
     },
     distanceButton: {
         flex: 1,
-        paddingVertical: theme.spacing.sm,
-        borderRadius: theme.borderRadius.md,
+        paddingVertical: 8, // theme.spacing.sm
+        borderRadius: 8, // theme.borderRadius.md
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        // borderColor: theme.colors.border, // Dynamic
         alignItems: 'center',
     },
-    distanceButtonActive: {
-        backgroundColor: theme.colors.primary,
-        borderColor: theme.colors.primary,
-    },
     distanceButtonText: {
-        fontSize: theme.typography.fontSize.sm,
-        fontFamily: theme.typography.fontFamily.medium,
-        color: theme.colors.textPrimary,
-    },
-    distanceButtonTextActive: {
-        color: theme.colors.textLight,
+        fontSize: 14, // theme.typography.fontSize.sm
+        fontFamily: 'System', // theme.typography.fontFamily.medium
+        fontWeight: '500',
+        // color: theme.colors.textPrimary, // Dynamic
     },
     modalActions: {
         flexDirection: 'row',
-        gap: theme.spacing.sm,
-        marginTop: theme.spacing.xl,
+        gap: 8, // theme.spacing.sm
+        marginTop: 32, // theme.spacing.xl
     },
     clearButton: {
         flex: 1,
-        paddingVertical: theme.spacing.md,
-        borderRadius: theme.borderRadius.md,
+        paddingVertical: 16, // theme.spacing.md
+        borderRadius: 8, // theme.borderRadius.md
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        // borderColor: theme.colors.border, // Dynamic
         alignItems: 'center',
     },
     clearButtonText: {
-        fontSize: theme.typography.fontSize.base,
-        fontFamily: theme.typography.fontFamily.semibold,
-        color: theme.colors.textPrimary,
+        fontSize: 16, // theme.typography.fontSize.base
+        fontFamily: 'System', // theme.typography.fontFamily.semibold
+        fontWeight: '600',
+        // color: theme.colors.textPrimary, // Dynamic
     },
     applyButton: {
         flex: 1,
-        paddingVertical: theme.spacing.md,
-        borderRadius: theme.borderRadius.md,
-        backgroundColor: theme.colors.primary,
+        paddingVertical: 16, // theme.spacing.md
+        borderRadius: 8, // theme.borderRadius.md
+        // backgroundColor: theme.colors.primary, // Dynamic
         alignItems: 'center',
     },
     applyButtonText: {
-        fontSize: theme.typography.fontSize.base,
-        fontFamily: theme.typography.fontFamily.semibold,
-        color: theme.colors.textLight,
+        fontSize: 16, // theme.typography.fontSize.base
+        fontFamily: 'System', // theme.typography.fontFamily.semibold
+        fontWeight: '600',
+        // color: theme.colors.textLight, // Dynamic
     },
 });
 

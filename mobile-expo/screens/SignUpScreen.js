@@ -9,6 +9,7 @@ import {
     Alert,
     Platform,
     KeyboardAvoidingView,
+    Image
 } from 'react-native';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import theme from '../styles/theme';

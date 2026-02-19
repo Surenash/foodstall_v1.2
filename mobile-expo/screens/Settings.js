@@ -10,18 +10,18 @@ import {
     Linking,
 } from 'react-native';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
-import theme from '../styles/theme';
-import { getDarkMode, setDarkMode as saveDarkMode, getLanguage, setLanguage as saveLanguage, clearAllCache } from '../services/storage';
+import { useTheme } from '../context/ThemeContext'; // Import Context
+import { getLanguage, setLanguage as saveLanguage, clearAllCache } from '../services/storage';
 
 /**
  * Settings Screen
  * App settings, language, notifications, about
  */
 const Settings = ({ navigation }) => {
+    const { theme, isDarkMode, toggleTheme } = useTheme(); // Use Context
     const [language, setLanguage] = useState('English');
     const [notifications, setNotifications] = useState(true);
     const [locationAlerts, setLocationAlerts] = useState(true);
-    const [darkMode, setDarkMode] = useState(false);
 
     const languages = ['English', 'हिंदी', 'தமிழ்', 'मराठी'];
 
@@ -30,9 +30,8 @@ const Settings = ({ navigation }) => {
     }, []);
 
     const loadSettings = async () => {
-        const savedDarkMode = await getDarkMode();
+        // Dark mode is now handled by Context, no need to load it manually here
         const savedLanguage = await getLanguage();
-        setDarkMode(savedDarkMode);
         if (savedLanguage) {
             const langMap = { 'en': 'English', 'hi': 'हिंदी', 'ta': 'தமிழ்', 'mr': 'मराठी' };
             setLanguage(langMap[savedLanguage] || 'English');
@@ -45,10 +44,7 @@ const Settings = ({ navigation }) => {
         await saveLanguage(langCodeMap[lang]);
     };
 
-    const handleDarkModeToggle = async (enabled) => {
-        setDarkMode(enabled);
-        await saveDarkMode(enabled);
-    };
+    // handleDarkModeToggle is replaced by toggleTheme from context
 
     const showLanguagePicker = () => {
         Alert.alert(
@@ -80,23 +76,23 @@ const Settings = ({ navigation }) => {
     };
 
     const SettingRow = ({ icon, iconColor, title, subtitle, onPress, rightComponent }) => (
-        <TouchableOpacity style={styles.settingRow} onPress={onPress} disabled={!onPress}>
+        <TouchableOpacity style={[styles.settingRow, { backgroundColor: theme.colors.surface }]} onPress={onPress} disabled={!onPress}>
             <View style={[styles.iconContainer, { backgroundColor: iconColor + '20' }]}>
                 <Icon name={icon} size={22} color={iconColor} />
             </View>
             <View style={styles.settingContent}>
-                <Text style={styles.settingTitle}>{title}</Text>
-                {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
+                <Text style={[styles.settingTitle, { color: theme.colors.textPrimary }]}>{title}</Text>
+                {subtitle && <Text style={[styles.settingSubtitle, { color: theme.colors.textSecondary }]}>{subtitle}</Text>}
             </View>
             {rightComponent || (onPress && <Icon name="chevron-right" size={24} color={theme.colors.textSecondary} />)}
         </TouchableOpacity>
     );
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
             {/* Language Section */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Language & Region</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>Language & Region</Text>
                 <SettingRow
                     icon="language"
                     iconColor={theme.colors.primary}
@@ -108,7 +104,7 @@ const Settings = ({ navigation }) => {
 
             {/* Notifications Section */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Notifications</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>Notifications</Text>
                 <SettingRow
                     icon="notifications"
                     iconColor={theme.colors.secondary}
@@ -139,16 +135,16 @@ const Settings = ({ navigation }) => {
 
             {/* Appearance Section */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Appearance</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>Appearance</Text>
                 <SettingRow
                     icon="dark-mode"
                     iconColor="#6B7280"
                     title="Dark Mode"
-                    subtitle={darkMode ? 'Enabled' : 'Disabled'}
+                    subtitle={isDarkMode ? 'Enabled' : 'Disabled'}
                     rightComponent={
                         <Switch
-                            value={darkMode}
-                            onValueChange={handleDarkModeToggle}
+                            value={isDarkMode}
+                            onValueChange={toggleTheme}
                             trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
                         />
                     }
@@ -157,7 +153,7 @@ const Settings = ({ navigation }) => {
 
             {/* Data Section */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Data & Storage</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>Data & Storage</Text>
                 <SettingRow
                     icon="delete-sweep"
                     iconColor={theme.colors.error}
@@ -169,7 +165,7 @@ const Settings = ({ navigation }) => {
 
             {/* About Section */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>About</Text>
+                <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>About</Text>
                 <SettingRow
                     icon="info"
                     iconColor={theme.colors.primary}
@@ -206,7 +202,7 @@ const Settings = ({ navigation }) => {
             <View style={styles.section}>
                 <Text style={[styles.sectionTitle, { color: theme.colors.error }]}>Danger Zone</Text>
                 <TouchableOpacity
-                    style={styles.dangerBtn}
+                    style={[styles.dangerBtn, { backgroundColor: theme.colors.surface, borderColor: theme.colors.error }]}
                     onPress={() => Alert.alert(
                         'Delete Account',
                         'This action is permanent and cannot be undone. All your data will be deleted.',
@@ -229,27 +225,27 @@ const Settings = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background,
+        // backgroundColor: theme.colors.background, // Handled dynamically
     },
     section: {
-        marginTop: theme.spacing.lg,
-        paddingHorizontal: theme.spacing.md,
+        marginTop: 24, // theme.spacing.lg
+        paddingHorizontal: 16, // theme.spacing.md
     },
     sectionTitle: {
-        fontSize: theme.typography.fontSize.sm,
+        fontSize: 14, // theme.typography.fontSize.sm
         fontWeight: '600',
-        color: theme.colors.textSecondary,
-        marginBottom: theme.spacing.sm,
+        // color: theme.colors.textSecondary, // Handled dynamically
+        marginBottom: 8, // theme.spacing.sm
         textTransform: 'uppercase',
         letterSpacing: 0.5,
     },
     settingRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: theme.colors.surface,
-        padding: theme.spacing.md,
-        borderRadius: theme.borderRadius.md,
-        marginBottom: theme.spacing.sm,
+        // backgroundColor: theme.colors.surface, // Handled dynamically
+        padding: 16, // theme.spacing.md
+        borderRadius: 8, // theme.borderRadius.md
+        marginBottom: 8, // theme.spacing.sm
     },
     iconContainer: {
         width: 40,
@@ -260,32 +256,32 @@ const styles = StyleSheet.create({
     },
     settingContent: {
         flex: 1,
-        marginLeft: theme.spacing.md,
+        marginLeft: 16, // theme.spacing.md
     },
     settingTitle: {
-        fontSize: theme.typography.fontSize.base,
+        fontSize: 16, // theme.typography.fontSize.base
         fontWeight: '500',
-        color: theme.colors.textPrimary,
+        // color: theme.colors.textPrimary, // Handled dynamically
     },
     settingSubtitle: {
-        fontSize: theme.typography.fontSize.sm,
-        color: theme.colors.textSecondary,
+        fontSize: 14, // theme.typography.fontSize.sm
+        // color: theme.colors.textSecondary, // Handled dynamically
         marginTop: 2,
     },
     dangerBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: theme.spacing.md,
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.borderRadius.md,
+        padding: 16, // theme.spacing.md
+        // backgroundColor: theme.colors.surface, // Handled dynamically
+        borderRadius: 8, // theme.borderRadius.md
         borderWidth: 1,
-        borderColor: theme.colors.error,
-        gap: theme.spacing.sm,
+        // borderColor: theme.colors.error, // Handled dynamically
+        gap: 8, // theme.spacing.sm
     },
     dangerBtnText: {
-        fontSize: theme.typography.fontSize.base,
-        color: theme.colors.error,
+        fontSize: 16, // theme.typography.fontSize.base
+        // color: theme.colors.error, // Handled dynamically
         fontWeight: '600',
     },
 });

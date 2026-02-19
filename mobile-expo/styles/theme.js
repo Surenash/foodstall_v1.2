@@ -3,21 +3,22 @@
  * Centralized theme configuration following Design Document specifications
  */
 
-export const colors = {
-    // Primary Colors (from Design Document)
-    primary: '#FF5733',        // Vibrant Orange - appetizing, energetic
-    secondary: '#FFC300',      // Yellow - highlights, warnings
+export const lightColors = {
+    // Primary Colors
+    primary: '#FF5733',        // Vibrant Orange
+    secondary: '#FFC300',      // Yellow
 
     // Status Colors
-    statusOpen: '#00C853',     // Bright Green for "OPEN"
-    statusClosed: '#9E9E9E',   // Grey for "CLOSED"
+    statusOpen: '#00C853',
+    statusClosed: '#9E9E9E',
 
     // Neutral Colors
-    background: '#FFFFFF',     // White backgrounds for readability
-    surface: '#F5F5F5',        // Light grey for cards
-    textPrimary: '#212121',    // Dark Grey for text
-    textSecondary: '#757575',  // Medium grey for secondary text
-    textLight: '#FFFFFF',      // White text for dark backgrounds
+    background: '#FFFFFF',
+    surface: '#F5F5F5',
+    textPrimary: '#212121',
+    textSecondary: '#757575',
+    textLight: '#FFFFFF',
+    textInverse: '#FFFFFF', // Text on primary background
 
     // UI Colors
     success: '#4CAF50',
@@ -26,14 +27,50 @@ export const colors = {
     info: '#2196F3',
 
     // Hygiene Badge Colors
-    hygieneHigh: '#4CAF50',    // Green shield
-    hygieneMedium: '#FFC107',  // Yellow shield
-    hygieneLow: '#FF5722',     // Red shield
+    hygieneHigh: '#4CAF50',
+    hygieneMedium: '#FFC107',
+    hygieneLow: '#FF5722',
 
     // Borders and Dividers
     border: '#E0E0E0',
     divider: '#BDBDBD',
 };
+
+export const darkColors = {
+    // Primary Colors (Slightly desaturated for dark mode)
+    primary: '#FF7043',        // Softer Orange
+    secondary: '#FFD54F',      // Softer Yellow
+
+    // Status Colors
+    statusOpen: '#00E676',
+    statusClosed: '#B0BEC5',
+
+    // Neutral Colors
+    background: '#121212',     // Very dark grey (Material Dark)
+    surface: '#1E1E1E',        // Slightly lighter grey for cards
+    textPrimary: '#E0E0E0',    // Light grey for main text
+    textSecondary: '#B0BEC5',  // Medium grey
+    textLight: '#FFFFFF',      // Keep white
+    textInverse: '#121212',    // Text on primary background (if primary is bright)
+
+    // UI Colors
+    success: '#66BB6A',
+    warning: '#FFE082',
+    error: '#EF5350',
+    info: '#42A5F5',
+
+    // Hygiene Badge Colors
+    hygieneHigh: '#66BB6A',
+    hygieneMedium: '#FFE082',
+    hygieneLow: '#FF7043',
+
+    // Borders and Dividers
+    border: '#333333',
+    divider: '#424242',
+};
+
+// Default export for backward compatibility (Light Mode)
+export const colors = lightColors;
 
 export const typography = {
     // Font Family (Google Fonts: Inter or Roboto)
